@@ -1,3 +1,6 @@
+import statistics
+from scipy.stats import skew as calc_skew
+
 # Track class
 class Track:
     # Track initialization
@@ -21,7 +24,7 @@ class Track:
 
     # Show data
     def __repr__(self):
-        return (f"Track(name={self.name}, artist={self.artist}, genre={self.genre}, subgenre = {self.sungenre}, danceability={self.danceability}, "
+        return (f"Track(name={self.name}, artist={self.artist}, genre={self.genre}, subgenre = {self.subgenre}, danceability={self.danceability}, "
                 f"energy={self.energy}, key={self.key}, loudness={self.loudness}, mode={self.mode}, speechiness={self.speechiness}, "
                 f"acousticness={self.acousticness}, instrumentalness={self.instrumentalness}, liveness={self.liveness}, "
                 f"valence={self.valence}, tempo={self.tempo}, duration={self.duration})")
@@ -76,5 +79,28 @@ def get_unique_values(tracks, parameter):
             unique_values.add(val)
     return list(unique_values)
 
+# Get parameter analytics
+def calculate_statistics(tracks, parameter):
+    values = [getattr(track, parameter) for track in tracks if isinstance(getattr(track, parameter), (int, float))]
+
+    if not values:
+        return None
+
+    stats = {}
+    stats['mean'] = statistics.mean(values)
+    stats['median'] = statistics.median(values)
+    stats['min'] = min(values)
+    stats['max'] = max(values)
+    stats['std_dev'] = statistics.stdev(values) if len(values) > 1 else 0.0
+    stats['skewness'] = calc_skew(values) if len(values) > 1 else 0.0
+
+    return stats
+
 # Get data
 track_list = create_track_list('Tracks.txt')
+
+# for track in track_list[:10]:
+#     print(track)
+
+parameter_stats = calculate_statistics(track_list, 'key')
+print(parameter_stats)
