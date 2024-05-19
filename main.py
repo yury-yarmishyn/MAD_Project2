@@ -1,39 +1,27 @@
 # Track class
 class Track:
-    def __init__(self, name, artist, genre, danceability, energy, key, loudness, mode, speechiness, acousticness, instrumentalness, liveness, valence, tempo, duration):
+    # Track initialization
+    def __init__(self, name, artist, genre, subgenre, danceability, energy, key, loudness, mode, speechiness, acousticness, instrumentalness, liveness, valence, tempo, duration):
         self.name = name
         self.artist = artist
         self.genre = genre
-        self.danceability = self._convert_to_float(danceability)
-        self.energy = self._convert_to_float(energy)
-        self.key = self._convert_to_int(key)
-        self.loudness = self._convert_to_float(loudness)
-        self.mode = self._convert_to_int(mode)
-        self.speechiness = self._convert_to_float(speechiness)
-        self.acousticness = self._convert_to_float(acousticness)
-        self.instrumentalness = self._convert_to_float(instrumentalness)
-        self.liveness = self._convert_to_float(liveness)
-        self.valence = self._convert_to_float(valence)
-        self.tempo = self._convert_to_float(tempo)
-        self.duration = self._convert_to_int(duration)
-
-    # Validation float
-    def _convert_to_float(self, value):
-        try:
-            return float(value)
-        except ValueError:
-            return None
-
-    # Validation int
-    def _convert_to_int(self, value):
-        try:
-            return int(value)
-        except ValueError:
-            return None
+        self.subgenre = subgenre
+        self.danceability = float(danceability)
+        self.energy = float(energy)
+        self.key = int(key)
+        self.loudness = float(loudness)
+        self.mode = int(mode)
+        self.speechiness = float(speechiness)
+        self.acousticness = float(acousticness)
+        self.instrumentalness = float(instrumentalness)
+        self.liveness = float(liveness)
+        self.valence = float(valence)
+        self.tempo = float(tempo)
+        self.duration = int(duration)
 
     # Show data
     def __repr__(self):
-        return (f"Track(name={self.name}, artist={self.artist}, genre={self.genre}, danceability={self.danceability}, "
+        return (f"Track(name={self.name}, artist={self.artist}, genre={self.genre}, subgenre = {self.sungenre}, danceability={self.danceability}, "
                 f"energy={self.energy}, key={self.key}, loudness={self.loudness}, mode={self.mode}, speechiness={self.speechiness}, "
                 f"acousticness={self.acousticness}, instrumentalness={self.instrumentalness}, liveness={self.liveness}, "
                 f"valence={self.valence}, tempo={self.tempo}, duration={self.duration})")
@@ -62,6 +50,7 @@ def create_track_list(file_path):
                 name=data[1],
                 artist=data[2],
                 genre=data[9],
+                subgenre=data[10],
                 danceability=data[11],
                 energy=data[12],
                 key=data[13],
@@ -78,16 +67,14 @@ def create_track_list(file_path):
             track_list.append(track)
     return track_list
 
-# Get unique genres
-def get_genres(tracks):
-    genres = set()
+# Get unique values by parameter
+def get_unique_values(tracks, parameter):
+    unique_values = set()
     for track in tracks:
-        if track.genre:
-            genres.add(track.genre)
-    return list(genres)
+        val = getattr(track, parameter, None)
+        if val is not None:
+            unique_values.add(val)
+    return list(unique_values)
 
 # Get data
 track_list = create_track_list('Tracks.txt')
-
-genres = get_genres(track_list)
-print(genres)
