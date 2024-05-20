@@ -1,5 +1,7 @@
 import statistics
 import pandas as pd
+import os
+import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.preprocessing import StandardScaler
@@ -133,56 +135,72 @@ def tracks_to_dataframe(tracks):
 
 # Train and evaluate the RandomForest model
 def train_model_rf(X_train, y_train):
-    pipeline = Pipeline([
-        ('scaler', StandardScaler()),
-        ('classifier', MultiOutputClassifier(RandomForestClassifier(random_state=42)))
-    ])
-    pipeline.fit(X_train, y_train)
+    model_path = "random_forest_model.pkl"
+    if os.path.exists(model_path):
+        pipeline = joblib.load(model_path)
+    else:
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('classifier', MultiOutputClassifier(RandomForestClassifier(random_state=42)))
+        ])
+        pipeline.fit(X_train, y_train)
+        joblib.dump(pipeline, model_path)
     return pipeline
 
 # Train and evaluate the SVM model
 def train_model_svm(X_train, y_train):
-    pipeline = Pipeline([
-        ('scaler', StandardScaler()),
-        ('classifier', MultiOutputClassifier(SVC(kernel='linear', random_state=42)))
-    ])
-    pipeline.fit(X_train, y_train)
+    model_path = "svm_model.pkl"
+    if os.path.exists(model_path):
+        pipeline = joblib.load(model_path)
+    else:
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('classifier', MultiOutputClassifier(SVC(kernel='linear', random_state=42)))
+        ])
+        pipeline.fit(X_train, y_train)
+        joblib.dump(pipeline, model_path)
     return pipeline
 
 # Train and evaluate the KNN model
 def train_model_knn(X_train, y_train):
-    pipeline = Pipeline([
-        ('scaler', StandardScaler()),
-        ('classifier', MultiOutputClassifier(KNeighborsClassifier()))
-    ])
-    pipeline.fit(X_train, y_train)
+    model_path = "knn_model.pkl"
+    if os.path.exists(model_path):
+        pipeline = joblib.load(model_path)
+    else:
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('classifier', MultiOutputClassifier(KNeighborsClassifier()))
+        ])
+        pipeline.fit(X_train, y_train)
+        joblib.dump(pipeline, model_path)
     return pipeline
 
 
 # Train and evaluate the hybrid model
 def train_model_hybrid(X_train, y_train):
-    # Define individual classifiers
-    rf_classifier = RandomForestClassifier(random_state=42)
-    svm_classifier = SVC(kernel='linear', probability=True, random_state=42)
-    knn_classifier = KNeighborsClassifier()
+    model_path = "hybrid_model.pkl"
+    if os.path.exists(model_path):
+        pipeline = joblib.load(model_path)
+    else:
+        rf_classifier = RandomForestClassifier(random_state=42)
+        svm_classifier = SVC(kernel='linear', probability=True, random_state=42)
+        knn_classifier = KNeighborsClassifier()
 
-    # Create a voting classifier
-    hybrid_classifier = VotingClassifier(
-        estimators=[
-            ('rf', rf_classifier),
-            ('svm', svm_classifier),
-            ('knn', knn_classifier)
-        ],
-        voting='soft'
-    )
+        hybrid_classifier = VotingClassifier(
+            estimators=[
+                ('rf', rf_classifier),
+                ('svm', svm_classifier),
+                ('knn', knn_classifier)
+            ],
+            voting='soft'
+        )
 
-    # Create a pipeline with data normalization and the voting classifier
-    pipeline = Pipeline([
-        ('scaler', StandardScaler()),
-        ('classifier', MultiOutputClassifier(hybrid_classifier))
-    ])
-    # Train the model
-    pipeline.fit(X_train, y_train)
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('classifier', MultiOutputClassifier(hybrid_classifier))
+        ])
+        pipeline.fit(X_train, y_train)
+        joblib.dump(pipeline, model_path)
     return pipeline
 
 # Evaluate the model
