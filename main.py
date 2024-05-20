@@ -9,6 +9,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from scipy.stats import skew as calc_skew
+from sklearn.ensemble import VotingClassifier
 
 
 # Track class
@@ -168,6 +169,33 @@ def train_model_knn(X_train, y_train):
     pipeline.fit(X_train, y_train)
     return pipeline
 
+
+# Train and evaluate the hybrid model
+def train_model_hybrid(X_train, y_train):
+    # Define individual classifiers
+    rf_classifier = RandomForestClassifier(random_state=42)
+    svm_classifier = SVC(kernel='linear', probability=True, random_state=42)
+    knn_classifier = KNeighborsClassifier()
+
+    # Create a voting classifier
+    hybrid_classifier = VotingClassifier(
+        estimators=[
+            ('rf', rf_classifier),
+            ('svm', svm_classifier),
+            ('knn', knn_classifier)
+        ],
+        voting='soft'
+    )
+
+    # Create a pipeline with data normalization and the voting classifier
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('classifier', MultiOutputClassifier(hybrid_classifier))
+    ])
+    # Train the model
+    pipeline.fit(X_train, y_train)
+    return pipeline
+
 # Evaluate the model
 def evaluate_model(model, X_test, y_test):
     y_pred = model.predict(X_test)
@@ -187,6 +215,7 @@ def predict_genre_and_subgenre(model, track):
 model_rf = train_model_rf(X_train, y_train)
 model_svm = train_model_svm(X_train, y_train)
 model_knn = train_model_knn(X_train, y_train)
+model_hybrid = train_model_hybrid(X_train, y_train)
 
 # Evaluate the RandomForest model
 accuracy_genre_rf, report_genre_rf, accuracy_subgenre_rf, report_subgenre_rf = evaluate_model(model_rf, X_test, y_test)
@@ -208,6 +237,13 @@ print("KNN Genre Accuracy:", accuracy_genre_knn)
 print("KNN Genre Classification Report:\n", report_genre_knn)
 print("KNN Subgenre Accuracy:", accuracy_subgenre_knn)
 print("KNN Subgenre Classification Report:\n", report_subgenre_knn)
+
+# Evaluate the hybrid model
+accuracy_genre_hybrid, report_genre_hybrid, accuracy_subgenre_hybrid, report_subgenre_hybrid = evaluate_model(model_hybrid, X_test, y_test)
+print("Hybrid Genre Accuracy:", accuracy_genre_hybrid)
+print("Hybrid Genre Classification Report:\n", report_genre_hybrid)
+print("Hybrid Subgenre Accuracy:", accuracy_subgenre_hybrid)
+print("Hybrid Subgenre Classification Report:\n", report_subgenre_hybrid)
 
 # Example of predicting the genre and subgenre for a new track
 new_track = {
@@ -239,3 +275,8 @@ print("SVM Predicted Subgenre:", predicted_subgenre_svm)
 predicted_genre_knn, predicted_subgenre_knn = predict_genre_and_subgenre(model_knn, new_track)
 print("KNN Predicted Genre:", predicted_genre_knn)
 print("KNN Predicted Subgenre:", predicted_subgenre_knn)
+
+# Predict the genre and subgenre for a new track using the hybrid model
+predicted_genre_hybrid, predicted_subgenre_hybrid = predict_genre_and_subgenre(model_hybrid, new_track)
+print("Hybrid Predicted Genre:", predicted_genre_hybrid)
+print("Hybrid Predicted Subgenre:", predicted_subgenre_hybrid)
