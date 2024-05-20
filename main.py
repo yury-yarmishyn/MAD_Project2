@@ -131,17 +131,6 @@ def tracks_to_dataframe(tracks):
         })
     return pd.DataFrame(data)
 
-# Create DataFrame from track list
-track_list = create_track_list('Tracks.txt')
-df = tracks_to_dataframe(track_list)
-
-# Split data into features (X) and target variables (y_genre, y_subgenre)
-X = df[['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'duration']]
-y = df[['genre', 'subgenre']]
-
-# Split into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
 # Train and evaluate the RandomForest model
 def train_model_rf(X_train, y_train):
     pipeline = Pipeline([
@@ -210,6 +199,17 @@ def predict_genre_and_subgenre(model, track):
     track_df = pd.DataFrame([track])
     predicted = model.predict(track_df)
     return predicted[0][0], predicted[0][1]
+
+# Create DataFrame from track list
+track_list = create_track_list('Tracks.txt')
+df = tracks_to_dataframe(track_list)
+
+# Split data into features (X) and target variables (y_genre, y_subgenre)
+X = df[['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'duration']]
+y = df[['genre', 'subgenre']]
+
+# Split into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Train the models
 model_rf = train_model_rf(X_train, y_train)
