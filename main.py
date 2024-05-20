@@ -247,18 +247,18 @@ print("Hybrid Subgenre Classification Report:\n", report_subgenre_hybrid)
 
 # Example of predicting the genre and subgenre for a new track
 new_track = {
-    'danceability': 0.74,
-    'energy': 0.54,
-    'key': 1,
-    'loudness': -10.16,
-    'mode': 1,
-    'speechiness': 0.26,
-    'acousticness': 0.22,
-    'instrumentalness': 0.0,
-    'liveness': 0.1,
-    'valence': 0.43,
-    'tempo': 171.0,
-    'duration': 187000
+    'danceability': 0.57,
+    'energy': 0.8,
+    'key': 4,
+    'loudness': -4.55,
+    'mode': 0,
+    'speechiness': 0.06,
+    'acousticness': 0.01,
+    'instrumentalness': 0.82,
+    'liveness': 0.3,
+    'valence': 0.28,
+    'tempo': 179.0,
+    'duration': 230000
 }
 
 # Predict with RandomForest model
