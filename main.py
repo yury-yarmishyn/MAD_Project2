@@ -1,5 +1,15 @@
 import statistics
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score
+from sklearn.pipeline import Pipeline
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 from scipy.stats import skew as calc_skew
+
 
 # Track class
 class Track:
@@ -96,11 +106,136 @@ def calculate_statistics(tracks, parameter):
 
     return stats
 
-# Get data
+# Convert the list of tracks to a DataFrame
+def tracks_to_dataframe(tracks):
+    data = []
+    for track in tracks:
+        data.append({
+            'name': track.name,
+            'artist': track.artist,
+            'genre': track.genre,
+            'subgenre': track.subgenre,
+            'danceability': track.danceability,
+            'energy': track.energy,
+            'key': track.key,
+            'loudness': track.loudness,
+            'mode': track.mode,
+            'speechiness': track.speechiness,
+            'acousticness': track.acousticness,
+            'instrumentalness': track.instrumentalness,
+            'liveness': track.liveness,
+            'valence': track.valence,
+            'tempo': track.tempo,
+            'duration': track.duration
+        })
+    return pd.DataFrame(data)
+
+# Create DataFrame from track list
 track_list = create_track_list('Tracks.txt')
+df = tracks_to_dataframe(track_list)
 
-# for track in track_list[:10]:
-#     print(track)
+# Split data into features (X) and target variables (y_genre, y_subgenre)
+X = df[['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'duration']]
+y = df[['genre', 'subgenre']]
 
-parameter_stats = calculate_statistics(track_list, 'key')
-print(parameter_stats)
+# Split into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train and evaluate the RandomForest model
+def train_model_rf(X_train, y_train):
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('classifier', MultiOutputClassifier(RandomForestClassifier(random_state=42)))
+    ])
+    pipeline.fit(X_train, y_train)
+    return pipeline
+
+# Train and evaluate the SVM model
+def train_model_svm(X_train, y_train):
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('classifier', MultiOutputClassifier(SVC(kernel='linear', random_state=42)))
+    ])
+    pipeline.fit(X_train, y_train)
+    return pipeline
+
+# Train and evaluate the KNN model
+def train_model_knn(X_train, y_train):
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('classifier', MultiOutputClassifier(KNeighborsClassifier()))
+    ])
+    pipeline.fit(X_train, y_train)
+    return pipeline
+
+# Evaluate the model
+def evaluate_model(model, X_test, y_test):
+    y_pred = model.predict(X_test)
+    accuracy_genre = accuracy_score(y_test['genre'], y_pred[:, 0])
+    accuracy_subgenre = accuracy_score(y_test['subgenre'], y_pred[:, 1])
+    report_genre = classification_report(y_test['genre'], y_pred[:, 0])
+    report_subgenre = classification_report(y_test['subgenre'], y_pred[:, 1])
+    return accuracy_genre, report_genre, accuracy_subgenre, report_subgenre
+
+# Predict the genre and subgenre for a new track
+def predict_genre_and_subgenre(model, track):
+    track_df = pd.DataFrame([track])
+    predicted = model.predict(track_df)
+    return predicted[0][0], predicted[0][1]
+
+# Train the models
+model_rf = train_model_rf(X_train, y_train)
+model_svm = train_model_svm(X_train, y_train)
+model_knn = train_model_knn(X_train, y_train)
+
+# Evaluate the RandomForest model
+accuracy_genre_rf, report_genre_rf, accuracy_subgenre_rf, report_subgenre_rf = evaluate_model(model_rf, X_test, y_test)
+print("RandomForest Genre Accuracy:", accuracy_genre_rf)
+print("RandomForest Genre Classification Report:\n", report_genre_rf)
+print("RandomForest Subgenre Accuracy:", accuracy_subgenre_rf)
+print("RandomForest Subgenre Classification Report:\n", report_subgenre_rf)
+
+# Evaluate the SVM model
+accuracy_genre_svm, report_genre_svm, accuracy_subgenre_svm, report_subgenre_svm = evaluate_model(model_svm, X_test, y_test)
+print("SVM Genre Accuracy:", accuracy_genre_svm)
+print("SVM Genre Classification Report:\n", report_genre_svm)
+print("SVM Subgenre Accuracy:", accuracy_subgenre_svm)
+print("SVM Subgenre Classification Report:\n", report_subgenre_svm)
+
+# Evaluate the KNN model
+accuracy_genre_knn, report_genre_knn, accuracy_subgenre_knn, report_subgenre_knn = evaluate_model(model_knn, X_test, y_test)
+print("KNN Genre Accuracy:", accuracy_genre_knn)
+print("KNN Genre Classification Report:\n", report_genre_knn)
+print("KNN Subgenre Accuracy:", accuracy_subgenre_knn)
+print("KNN Subgenre Classification Report:\n", report_subgenre_knn)
+
+# Example of predicting the genre and subgenre for a new track
+new_track = {
+    'danceability': 0.74,
+    'energy': 0.54,
+    'key': 1,
+    'loudness': -10.16,
+    'mode': 1,
+    'speechiness': 0.26,
+    'acousticness': 0.22,
+    'instrumentalness': 0.0,
+    'liveness': 0.1,
+    'valence': 0.43,
+    'tempo': 171.0,
+    'duration': 187000
+}
+
+# Predict with RandomForest model
+predicted_genre_rf, predicted_subgenre_rf = predict_genre_and_subgenre(model_rf, new_track)
+print("RandomForest Predicted Genre:", predicted_genre_rf)
+print("RandomForest Predicted Subgenre:", predicted_subgenre_rf)
+
+# Predict with SVM model
+predicted_genre_svm, predicted_subgenre_svm = predict_genre_and_subgenre(model_svm, new_track)
+print("SVM Predicted Genre:", predicted_genre_svm)
+print("SVM Predicted Subgenre:", predicted_subgenre_svm)
+
+# Predict with KNN model
+predicted_genre_knn, predicted_subgenre_knn = predict_genre_and_subgenre(model_knn, new_track)
+print("KNN Predicted Genre:", predicted_genre_knn)
+print("KNN Predicted Subgenre:", predicted_subgenre_knn)
