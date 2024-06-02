@@ -268,48 +268,80 @@ model_svm = train_model_svm(X_train, y_train)
 model_knn = train_model_knn(X_train, y_train)
 model_hybrid = train_model_hybrid(X_train, y_train)
 
-# Evaluate the RandomForest model
-accuracy_genre_rf, report_genre_rf, accuracy_subgenre_rf, report_subgenre_rf = evaluate_model(model_rf, X_test, y_test)
-print("RandomForest Genre Accuracy:", accuracy_genre_rf)
-print("RandomForest Genre Classification Report:\n", report_genre_rf)
-print("RandomForest Subgenre Accuracy:", accuracy_subgenre_rf)
-print("RandomForest Subgenre Classification Report:\n", report_subgenre_rf)
+# # Evaluate the RandomForest model
+# accuracy_genre_rf, report_genre_rf, accuracy_subgenre_rf, report_subgenre_rf = evaluate_model(model_rf, X_test, y_test)
+# print("RandomForest Genre Accuracy:", accuracy_genre_rf)
+# print("RandomForest Genre Classification Report:\n", report_genre_rf)
+# print("RandomForest Subgenre Accuracy:", accuracy_subgenre_rf)
+# print("RandomForest Subgenre Classification Report:\n", report_subgenre_rf)
+#
+# # Evaluate the SVM model
+# accuracy_genre_svm, report_genre_svm, accuracy_subgenre_svm, report_subgenre_svm = evaluate_model(model_svm, X_test, y_test)
+# print("SVM Genre Accuracy:", accuracy_genre_svm)
+# print("SVM Genre Classification Report:\n", report_genre_svm)
+# print("SVM Subgenre Accuracy:", accuracy_subgenre_svm)
+# print("SVM Subgenre Classification Report:\n", report_subgenre_svm)
+#
+# # Evaluate the KNN model
+# accuracy_genre_knn, report_genre_knn, accuracy_subgenre_knn, report_subgenre_knn = evaluate_model(model_knn, X_test, y_test)
+# print("KNN Genre Accuracy:", accuracy_genre_knn)
+# print("KNN Genre Classification Report:\n", report_genre_knn)
+# print("KNN Subgenre Accuracy:", accuracy_subgenre_knn)
+# print("KNN Subgenre Classification Report:\n", report_subgenre_knn)
+#
+# # Evaluate the hybrid model
+# accuracy_genre_hybrid, report_genre_hybrid, accuracy_subgenre_hybrid, report_subgenre_hybrid = evaluate_model(model_hybrid, X_test, y_test)
+# print("Hybrid Genre Accuracy:", accuracy_genre_hybrid)
+# print("Hybrid Genre Classification Report:\n", report_genre_hybrid)
+# print("Hybrid Subgenre Accuracy:", accuracy_subgenre_hybrid)
+# print("Hybrid Subgenre Classification Report:\n", report_subgenre_hybrid)
 
-# Evaluate the SVM model
-accuracy_genre_svm, report_genre_svm, accuracy_subgenre_svm, report_subgenre_svm = evaluate_model(model_svm, X_test, y_test)
-print("SVM Genre Accuracy:", accuracy_genre_svm)
-print("SVM Genre Classification Report:\n", report_genre_svm)
-print("SVM Subgenre Accuracy:", accuracy_subgenre_svm)
-print("SVM Subgenre Classification Report:\n", report_subgenre_svm)
+random_tracks = df.sample(n=10, random_state=42)
 
-# Evaluate the KNN model
-accuracy_genre_knn, report_genre_knn, accuracy_subgenre_knn, report_subgenre_knn = evaluate_model(model_knn, X_test, y_test)
-print("KNN Genre Accuracy:", accuracy_genre_knn)
-print("KNN Genre Classification Report:\n", report_genre_knn)
-print("KNN Subgenre Accuracy:", accuracy_subgenre_knn)
-print("KNN Subgenre Classification Report:\n", report_subgenre_knn)
+# Predict genre and subgenre for 10 random tracks
+for index, track in random_tracks.iterrows():
+    new_track = track.to_dict()
+    track_features = {k: new_track[k] for k in X.columns}
+    track_name = new_track['name']
+    track_artist = new_track['artist']
 
-# Evaluate the hybrid model
-accuracy_genre_hybrid, report_genre_hybrid, accuracy_subgenre_hybrid, report_subgenre_hybrid = evaluate_model(model_hybrid, X_test, y_test)
-print("Hybrid Genre Accuracy:", accuracy_genre_hybrid)
-print("Hybrid Genre Classification Report:\n", report_genre_hybrid)
-print("Hybrid Subgenre Accuracy:", accuracy_subgenre_hybrid)
-print("Hybrid Subgenre Classification Report:\n", report_subgenre_hybrid)
+    # Predict with RandomForest model
+    predicted_genre_rf, predicted_subgenre_rf = predict_genre_and_subgenre(model_rf, track_features)
+    print(f"RandomForest Predicted Genre for '{track_name}' by {track_artist}: {predicted_genre_rf}")
+    print(f"RandomForest Predicted Subgenre for '{track_name}' by {track_artist}: {predicted_subgenre_rf}")
+
+    # Predict with SVM model
+    predicted_genre_svm, predicted_subgenre_svm = predict_genre_and_subgenre(model_svm, track_features)
+    print(f"SVM Predicted Genre for '{track_name}' by {track_artist}: {predicted_genre_svm}")
+    print(f"SVM Predicted Subgenre for '{track_name}' by {track_artist}: {predicted_subgenre_svm}")
+
+    # Predict with KNN model
+    predicted_genre_knn, predicted_subgenre_knn = predict_genre_and_subgenre(model_knn, track_features)
+    print(f"KNN Predicted Genre for '{track_name}' by {track_artist}: {predicted_genre_knn}")
+    print(f"KNN Predicted Subgenre for '{track_name}' by {track_artist}: {predicted_subgenre_knn}")
+
+    # Predict with Hybrid model
+    predicted_genre_hybrid, predicted_subgenre_hybrid = predict_genre_and_subgenre(model_hybrid, track_features)
+    print(f"Hybrid Predicted Genre for '{track_name}' by {track_artist}: {predicted_genre_hybrid}")
+    print(f"Hybrid Predicted Subgenre for '{track_name}' by {track_artist}: {predicted_subgenre_hybrid}")
+    print("\n")
 
 # Example of predicting the genre and subgenre for a new track
+
+# Symptom of the Universe - Black Sabbath
 new_track = {
-    'danceability': 0.57,
-    'energy': 0.8,
-    'key': 4,
-    'loudness': -4.55,
+    'danceability': 0.29,
+    'energy': 0.75,
+    'key': 6,
+    'loudness': -9.09,
     'mode': 0,
-    'speechiness': 0.06,
-    'acousticness': 0.01,
-    'instrumentalness': 0.82,
-    'liveness': 0.3,
-    'valence': 0.28,
-    'tempo': 179.0,
-    'duration': 230000
+    'speechiness': 0.05,
+    'acousticness': 0.03,
+    'instrumentalness': 0.46,
+    'liveness': 0.12,
+    'valence': 0.42,
+    'tempo': 174.0,
+    'duration': 389000
 }
 
 # Predict with RandomForest model
