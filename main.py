@@ -296,9 +296,10 @@ print("Hybrid Genre Classification Report:\n", report_genre_hybrid)
 print("Hybrid Subgenre Accuracy:", accuracy_subgenre_hybrid)
 print("Hybrid Subgenre Classification Report:\n", report_subgenre_hybrid)
 
+# Get 10 random tracks from database
 random_tracks = df.sample(n=10, random_state=42)
 
-# Predict genre and subgenre for 10 random tracks
+# Predict genres and subgenres for 10 random tracks from database
 for index, track in random_tracks.iterrows():
     new_track = track.to_dict()
     track_features = {k: new_track[k] for k in X.columns}
@@ -327,7 +328,6 @@ for index, track in random_tracks.iterrows():
     print("\n")
 
 # Example of predicting the genre and subgenre for a new track
-
 # Symptom of the Universe - Black Sabbath
 new_track = {
     'danceability': 0.29,
